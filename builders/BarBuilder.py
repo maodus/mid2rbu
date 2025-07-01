@@ -17,11 +17,8 @@ class BarBuilder():
   def __init__(self):
     self.bars = [[], [], [], []]
 
-  def build(self, tempo_map, measure_map, gems, difficulty):
+  def build(self, tempo_map, measure_map, gems, difficulty, last_tick):
     cur_bar_tick = 0
-    last_gem = gems[-1]
-
-    last_tick = last_gem.tick + last_gem.tick_duration
     gem_idx = 0
 
     while cur_bar_tick < last_tick:
