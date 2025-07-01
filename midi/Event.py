@@ -4,6 +4,7 @@ class EventType(IntFlag):
   Empty = 0
   Starpower = 1 << 0
   StarpowerEnd = 1 << 1
+  IgnoreDuration = 1 << 2
 
 class TrackEvent():
   def __init__(self, tick, sus, event_types):
