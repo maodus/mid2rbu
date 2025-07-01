@@ -132,9 +132,3 @@ if __name__ == "__main__":
       f.seek(diff_end, 0)
 
       print(f"Size of {difficulties[difficulty]} section: {diff_end - diff_start} bytes")
-
-      # We have about 50k bytes free in the game's string table.
-      # The game can still crash due to heap constraints for the other data.
-      # But gem data exceeding 50k bytes is almost guarenteed to crash the game.
-      if gem_size >= 50000:
-         print(f"WARNING: {difficulties[difficulty]} difficulty will likely crash the game due to the number of gems ({gem_size} bytes)")
