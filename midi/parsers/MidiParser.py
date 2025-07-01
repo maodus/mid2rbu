@@ -14,7 +14,6 @@ class MidiParser:
     self.timesig_parser = TimeSigParser()
     self.beat_parser = BeatParser()
     self.notes = [Note(i) for i in range(128)]
-
     
     self.note_parsers = {
       "PART DRUMS" : DrumParser(),
@@ -50,9 +49,9 @@ class MidiParser:
     cutoff = int(64 * self.midi_file.ticks_per_beat / 192.0)
 
     if sustain <= cutoff:
-      return 0
+      return EventType.IgnoreDuration
   
-    return sustain
+    return EventType.Empty
   
   def parse_tempo(self):
     tempo_track = self.midi_file.tracks[0]
@@ -80,6 +79,18 @@ class MidiParser:
   
   def get_measure_map(self):
     return self.timesig_parser.measure_map
+  
+  def get_final_tick(self):
+    last_tick = 0
+    for track in self.midi_file.tracks:
+      name = track.name
+
+      if name in self.note_parsers:
+        final_tick = sum(msg.time for msg in track)
+        if final_tick > last_tick:
+          last_tick = final_tick
+
+    return last_tick
     
   def build_modifiers(self, track_name):
     track = self.find_track(track_name)
@@ -94,10 +105,10 @@ class MidiParser:
       elif (msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0)):
         note = self.notes[msg.note]
         sus = tick - note.tick_start
-        note.end(self.process_sustain(sus))
+        note.end(sus)
 
         if msg.note == 116: # Starpower
-          events.append(TrackEvent(note.tick_start, note.tick_end - note.tick_start, EventType.Starpower))
+          events.append(TrackEvent(note.tick_start, sus, EventType.Starpower))
           events.append(TrackEvent(note.tick_end, 0, EventType.StarpowerEnd))
 
     events.sort(key=lambda e: e.tick)
@@ -112,6 +123,8 @@ class MidiParser:
 
     tempo_map = self.get_tempo_map()
     measure_map = self.get_measure_map()
+
+    final_tick = self.get_final_tick()
 
     for i in range(len(self.midi_file.tracks)):
       track = self.midi_file.tracks[i]
@@ -131,14 +144,16 @@ class MidiParser:
           self.notes[msg.note].start(tick) 
         elif (msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0)):
           note = self.notes[msg.note]
-          note.end(self.process_sustain(tick - note.tick_start))
+          sus = tick - note.tick_start
+          note.end(sus)
 
           modifiers = EventType.Empty
           for event in events:
             if note.tick_start >= event.tick and note.tick_end <= event.tick + event.sus:
               modifiers |= event.event_types
 
-          parser.process_note(tempo_map, note.clone(), modifiers)
-
+          ignore_flag = self.process_sustain(sus) # Whether or not to ignore the sustain
+          parser.process_note(tempo_map, note.clone(), modifiers | ignore_flag)
+      
       for j in range(4):
-        self.bar_builders[track_name].build(tempo_map, measure_map, parser.gems[j], j)
+        self.bar_builders[track_name].build(tempo_map, measure_map, parser.gems[j], j, final_tick)
