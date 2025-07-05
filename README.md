@@ -27,17 +27,13 @@ mid2rbu is a Python tool for converting standard MIDI files (.mid) into a format
 
 **Note**: This tool works best with Fortnite Festival charts, but normal Rock Band charts are supported (although they may not be exactly 1:1).
 
-<br/>
-
 For a general overview of the program, you can run the program with the help parameter like so:
 
-`python3 mid2rbu.py -h`
+- `python3 mid2rbu.py -h`
 
-<br/>
+In order to convert a Rock Band/Fortnite Festival midi chart into a Rock Band Unplugged chart, specify the filepath of your Festival chart in the program arguments.
 
-In order to convert a Fortnite Festival midi chart into a Rock Band Unplugged chart, specify the filepath of your Festival chart in the program arguments.
-
-`python3 mid2rbu.py path/to/song.mid`
+- `python3 mid2rbu.py path/to/song.mid`
 
 This will create a `ZSONG.rbu` file, which you will need to drag-n-drop into the DLC subdirectory of your custom song, as per the instructions found on the [Unplugged Deluxe](https://github.com/maodus/UnpluggedDeluxe#custom-songs) installation guide. This `.rbu` file contains all of the information about your custom chart that the game needs to know about.
 
