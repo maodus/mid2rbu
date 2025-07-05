@@ -3,6 +3,8 @@ from midi.Event import EventType
 
 class Gem:
   def __init__(self, ms, tick, ms_duration, tick_duration, lane, modifiers):
+    self.modifiers = modifiers
+
     self.ms = ms # float32
     self.tick = tick # int32
     self.ms_duration = int(ms_duration) # int16

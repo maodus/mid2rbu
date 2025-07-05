@@ -7,9 +7,10 @@ from builders.BarBuilder import BarBuilder
 from midi.Note import Note
 
 class MidiParser:
-  def __init__(self, midi_file):
-    # midi_file.ticks_per_beat
+  def __init__(self, midi_file, parser_config):
     self.midi_file = midi_file
+    self.parser_config = parser_config
+
     self.tempo_parser = TempoParser()
     self.timesig_parser = TimeSigParser()
     self.beat_parser = BeatParser()
@@ -17,9 +18,9 @@ class MidiParser:
     
     self.note_parsers = {
       "PART DRUMS" : DrumParser(),
-      "PART GUITAR" : GuitarParser(),
       "PART BASS" : BassParser(),
-      "PART VOCALS" : VocalParser()
+      "PART GUITAR" : GuitarParser(),
+      "PART VOCALS" : VocalParser(parser_config["PitchedVocals"])
     }
 
     self.bar_builders = {}

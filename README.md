@@ -25,7 +25,7 @@ mid2rbu is a Python tool for converting standard MIDI files (.mid) into a format
 
 ## Usage
 
-Note: This tool only currently supports Fortnite Festival midi charts. Support for other Rock Band-style charts will be added in the future. The difference between a Festival chart and a regular Rockband chart is how the vocal notes are charted. Festival vocal notes are charted in a manner similar to any other instrument track (easy 1:1 note to lane mapping). However, vocal charts from other Rock Band games cannot be simply mapped to in-game lanes and will require further parser development. If you choose to use a midi chart that contains complex vocal mappings, the vocal notes will likely not function correctly in game at this time.
+**Note**: This tool works best with Fortnite Festival charts, but normal Rock Band charts are supported (although they may not be exactly 1:1).
 
 <br/>
 
@@ -45,9 +45,29 @@ This will create a `ZSONG.rbu` file, which you will need to drag-n-drop into the
 
 Due to the nature of how these custom charts are injected into the game's memory, any track that contains too many notes/gems runs the risk of overwriting existing internal game memory. Other factors such as too much tempo/beat/time signature information can also run this risk, however this is far less likely. If you find that when playing your custom song, you experience crashing or instability, your chart is likely too large and will have to be trimmed.
 
-
 ## Config
-Coming soon
+
+### Song
+
+| Key | Description | Example Value |
+|---|---|---|
+| `Name` | Song title. Maximum length of **47 characters**. | `KNOW YOUR ENEMY` |
+| `Artist` | Artist or band name. Maximum length of **47 characters** | `GREEN DAY` |
+| `InitialTrack` | Track that is initially displayed when starting the song. <br><br>• `0` = Drums <br>• `1` = Bass <br>• `2` = Guitar <br>• `3` = Vocals | `0` |
+| `DifficultyOffset` | Difficulty category in which your song will be displayed under. <br><br>• `0` = Warmup <br>• `1` = Apprentice <br>• `2` = Solid <br>• `3` = Moderate <br>• `4` = Challenging <br>• `5` = Nightmare <br>• `6` = Impossible | `0` |
+| `GenreOffset` | Musical genre index. **Range: 0–19.** *(List of genres coming soon.)*  | `0` |
+| `EraOffset` | Musical era index. <br><br>• `0` = 60's <br>• `1` = 70's <br>• `2` = 80's <br>• `3` = 90's <br>• `4` = 00's | `0` |
+| `BandDifficulty` | Overall difficulty rating considering all tracks. **Range: 0–6.** | `6` |
+| `DrumDifficulty` |  Difficulty rating of the drum track. **Range: 0–6.**   | `1` |
+| `BassDifficulty` |  Difficulty rating of the bass track. **Range: 0–6.**   | `2` |
+| `GuitarDifficulty` |  Difficulty rating of the guitar track. **Range: 0–6.**   | `3` |
+| `VocalDifficulty` |  Difficulty rating of the vocal track. **Range: 0–6.**   | `4` |
+
+### Parser
+
+| Key | Description | Example Value |
+|---|---|---|
+| `PitchedVocals` | Whether or not to interpret the vocal track as pitched notes. Set this to `True` if the vocal track was not charted like a regular instrument, but instead considers the vocal pitch of the singer (usual case with Rock Band charts). Otherwise, set this value to `False` (like in the case of a Fortnite Festival chart). **\*WIP\*** | `True` |
 
 ## Acknowledgements
 

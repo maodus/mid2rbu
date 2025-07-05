@@ -21,6 +21,10 @@ default_song_config = {
   "BandDifficulty" : 5,
 }
 
+default_parser_config = {
+   "PitchedVocals" : False
+}
+
 def parse_value(value, default):
   '''Converts the value to the type of the default, or returns the default on failure.'''
   try:
@@ -28,29 +32,40 @@ def parse_value(value, default):
   except (ValueError, TypeError):
       print(f"Warning: Could not parse '{value}' as {type(default).__name__}, using default '{default}'")
       return default
+  
+def parse_bool (config, sect, key, default):
+  try:
+    return config.getboolean(sect, key, fallback=default)
+  except (ValueError, TypeError):
+    print(f"Warning: Key {key} could not be parsed as a boolean, using default '{default}'")
+    return default
 
-def load_song_ini(file_path, defaults):
+def load_config_ini(file_path):
   config = configparser.ConfigParser()
-  song_info = {}
-
   config.read(file_path)
+  return config
 
-  section = config["Song"] if "Song" in config else {}
-  if not section:
-      print("Warning: [Song] section missing. Using defaults for all fields.")
+def load_config_section(sect, config, defaults):
+  results = {}
+  config_sect = config[sect] if sect in config else {}
+  if not config_sect:
+      print(f"Warning: {sect} section missing. Using defaults for all fields.")
 
   for key, default_value in defaults.items():
-      if key in section:
-          song_info[key] = parse_value(section[key], default_value)
+      if key in config_sect:
+          if type(default_value) == type(True):
+            results[key] = parse_bool(config, sect, key, default_value)
+          else:
+            results[key] = parse_value(config_sect[key], default_value)
       else:
           print(f"Warning: Key '{key}' is missing, using default value.")
-          song_info[key] = default_value
+          results[key] = default_value
 
-  return song_info
+  return results
 
-def print_song_info(song_info):
-  print("Extracted Song Info:")
-  for key, value in song_info.items():
+def print_section_info(header_str, section):
+  print(header_str)
+  for key, value in section.items():
       print(f"  {key}: {value}")
 
 def clean_file_name(file_name):
@@ -68,15 +83,18 @@ if __name__ == "__main__":
   args = parse_args()
 
   # Parse and display config value
-  song_info = load_song_ini(args.config, default_song_config)
-  print_song_info(song_info)
+  ini_config = load_config_ini(args.config)
+  song_info = load_config_section("Song", ini_config, default_song_config)
+  parser_config = load_config_section("Parser", ini_config, default_parser_config)
+  print_section_info("Extracted song info:", song_info)
+  print_section_info("Extracted parser config:", parser_config)
 
   # Load and parse midi file
   mid = mido.MidiFile(args.midi_path)
-  midi_parser = MidiParser(mid)
+  midi_parser = MidiParser(mid, parser_config)
   midi_parser.parse_tracks()
 
-  part_order = ["PART DRUMS" ,"PART GUITAR" , "PART BASS" , "PART VOCALS"]
+  part_order = ["PART DRUMS", "PART BASS", "PART GUITAR", "PART VOCALS"]
   difficulties = ["easy", "medium", "hard", "expert"]
   rbu_file_name = clean_file_name(Path(args.midi_path).stem)
   with open (rbu_file_name, "wb") as f:
@@ -101,7 +119,7 @@ if __name__ == "__main__":
       track_difficulties
     )
 
-    # Write header (116 bytes)
+    # Write header
     f.write(header)
 
     # Write tempo map
