@@ -22,7 +22,7 @@ default_song_config = {
 }
 
 default_parser_config = {
-   "PitchedVocals" : False
+   "PitchedVocals" : True
 }
 
 def parse_value(value, default):
