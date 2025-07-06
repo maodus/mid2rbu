@@ -51,7 +51,7 @@ class Gem:
     )
   
   def __str__(self):
-    return f"{self.ms} {self.tick} {self.tick_duration} {self.lane}"
+    return f"{self.ms} {self.tick} {self.tick_duration} {bin(self.lane)} {bin(self.modifiers)}"
   
   def __repr__(self):
     return str(self)

@@ -30,7 +30,6 @@ class NoteParser():
 
       self.note_hist[i] = note
       self._add_gem(tempo_map, note, i, lane, modifiers)
-
     
   def _add_gem(self, tempo_map, note, difficulty, lane, modifiers):
     t_start = note.tick_start
@@ -58,7 +57,8 @@ class DrumParser(NoteParser):
   def __init__(self):
     super().__init__("PART DRUMS")
 
-    self.difficulty_map = [61, 72, 84, 96]
+    # Kicks are at note 60, 72, 84, 96. We dont care about them
+    self.difficulty_map = [61, 73, 85, 97]
 
 class GuitarParser(NoteParser):
     def __init__(self):
@@ -112,9 +112,12 @@ class VocalParser(NoteParser):
               and (note.tick_start - last_note.tick_end) < 240):            
             last_gem = self.gems[i][-1] # Copy of last gem
 
-            sus_t = note.tick_end - note.tick_start
+            cur_t_end = note.tick_end
+            cur_t_start = note.tick_start
+            sus_t = cur_t_end - cur_t_start
+
             last_gem.tick_duration += sus_t
-            last_gem.ms_duration += tempo_map.tick2ms(sus_t)
+            last_gem.ms_duration += tempo_map.tick2ms(cur_t_end) - tempo_map.tick2ms(cur_t_start)
             new_mods = (last_gem.modifiers | modifiers) & ~EventType.IgnoreDuration
 
             self.gems[i][-1] = Gem(last_gem.ms, last_gem.tick, last_gem.ms_duration, last_gem.tick_duration, 1 << lane, new_mods)
