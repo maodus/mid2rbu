@@ -19,12 +19,20 @@ class TempoMap():
     total_ms = 0
     for tempo_rng in self.tempos:
       if tempo_rng.tick_end <= tick:
-        ticks = tempo_rng.tick_end - tempo_rng.tick_start
-        total_ms += (ticks * (tempo_rng.tempo / 1000)) / self.tpq
+        # We have already passed 
+        elapsed_ticks = tempo_rng.tick_end - tempo_rng.tick_start
+        total_ms += (elapsed_ticks * (tempo_rng.tempo / 1000)) / self.tpq
       else:
-        ticks = tick - tempo_rng.tick_start
-        total_ms += (ticks * (tempo_rng.tempo / 1000)) / self.tpq
+        # We are within the current tempo window
+        active_ticks = tick - tempo_rng.tick_start
+        total_ms += (active_ticks * (tempo_rng.tempo / 1000)) / self.tpq
         return total_ms
+      
+    # Fall back on the last tempo change for remainder of ticks
+    if self.tempos:
+      last = self.tempos[-1]
+      extra_ticks = tick - last.tick_end
+      total_ms += (extra_ticks * (last.tempo / 1000)) / self.tpq
 
     return total_ms
   
