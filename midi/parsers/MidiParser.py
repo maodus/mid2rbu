@@ -92,28 +92,40 @@ class MidiParser:
           last_tick = final_tick
 
     return last_tick
+  
+  def extract_notes(self, track):
+    tick = 0
+    for msg in track:
+      tick += msg.time
+      if msg.type == "note_on" and msg.velocity > 0:
+          self.notes[msg.note].start(tick)
+      elif msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0):
+          note = self.notes[msg.note]
+          note.end(tick - note.tick_start)
+          yield note
     
   def build_modifiers(self, track_name):
     track = self.find_track(track_name)
-    tick = 0
     events = []
     
-    for msg in track:
-      tick += msg.time 
-
-      if msg.type == "note_on" and msg.velocity > 0:
-        self.notes[msg.note].start(tick) 
-      elif (msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0)):
-        note = self.notes[msg.note]
-        sus = tick - note.tick_start
-        note.end(sus)
-
-        if msg.note == 116: # Starpower
+    for note in self.extract_notes(track):
+        sus = note.tick_end - note.tick_start 
+        if note.midi_note == 116: # Starpower
           events.append(TrackEvent(note.tick_start, sus, EventType.Starpower))
           events.append(TrackEvent(note.tick_end, 0, EventType.StarpowerEnd))
-
-    events.sort(key=lambda e: e.tick)
+          
     return events
+  
+  def _get_track_config_prefix(self, track_name):
+    track_map = {
+      "PART DRUMS" : "Drum",
+      "PART GUITAR" : "Guitar",
+      "PART BASS" : "Bass", 
+      "PART VOCALS" : "Vocal"
+    }
+
+    return track_map[track_name]
+
 
   def parse_tracks(self):
     self.validate_tracks() # Make sure we have needed tracks
@@ -124,7 +136,6 @@ class MidiParser:
 
     tempo_map = self.get_tempo_map()
     measure_map = self.get_measure_map()
-
     final_tick = self.get_final_tick()
 
     for i in range(len(self.midi_file.tracks)):
@@ -134,21 +145,18 @@ class MidiParser:
       if track_name not in self.note_parsers:
         continue
 
+      # Gather lane map settings
+      lane_config_key = self._get_track_config_prefix(track_name) + "LaneMap"
+      lane_config = self.parser_config[lane_config_key]
+
       parser = self.note_parsers[track_name]
+      parser.apply_lane_mapping(lane_config)
       events = self.build_modifiers(track_name)
 
-      tick = 0
-      for msg in track:
-        tick += msg.time 
-
-        if msg.type == "note_on" and msg.velocity > 0:
-          self.notes[msg.note].start(tick) 
-        elif (msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0)):
-          note = self.notes[msg.note]
-          sus = tick - note.tick_start
-          note.end(sus)
-
+      for note in self.extract_notes(track):
+          sus = note.tick_end - note.tick_start
           modifiers = EventType.Empty
+
           for event in events:
             if note.tick_start >= event.tick and note.tick_end <= event.tick + event.sus:
               modifiers |= event.event_types

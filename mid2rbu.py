@@ -22,7 +22,11 @@ default_song_config = {
 }
 
 default_parser_config = {
-   "PitchedVocals" : True
+  "PitchedVocals" : True,
+  "DrumLaneMap" : "red=red, yellow=yellow, green=green, blue=blue",
+  "BassLaneMap" : "red=red, yellow=yellow, green=green, blue=blue",
+  "GuitarLaneMap" : "red=red, yellow=yellow, green=green, blue=blue",
+  "VocalLaneMap" : "red=red, yellow=yellow, green=green, blue=blue"
 }
 
 def parse_value(value, default):
@@ -33,13 +37,48 @@ def parse_value(value, default):
       print(f"Warning: Could not parse '{value}' as {type(default).__name__}, using default '{default}'")
       return default
   
-def parse_bool (config, sect, key, default):
+def parse_bool(config, sect, key, default):
   try:
     return config.getboolean(sect, key, fallback=default)
   except (ValueError, TypeError):
     print(f"Warning: Key {key} could not be parsed as a boolean, using default '{default}'")
-    return default
+    return default 
 
+def validate_lane_maps(config, default_config):
+  instruments = ["Drum", "Bass", "Guitar", "Vocal"]
+
+  for instr in instruments:
+    colours = {"red" : 0, "green" : 0, "yellow" : 0, "blue" : 0}
+    key = instr + "LaneMap"
+
+    # Assumption: config has already parsed and is not missing keys
+    mapping_str = config[key]
+    split_map = [c.strip() for c in mapping_str.split(",")]
+
+    if len(split_map) != 4:
+        config[key] = default_config[key]
+        continue
+
+    for assignment in split_map:
+      split_assign = assignment.split("=")
+    
+      if len(split_assign) != 2:
+        break
+      
+      l, r = split_assign[0].strip(), split_assign[1].strip()
+
+      if l not in colours or r not in colours:
+        break
+      
+      colours[l] += 1
+      colours[r] += 1
+  
+    for colour in colours:
+      if colours[colour] != 2:
+        config[key] = default_config[key]
+        break
+    
+  
 def load_config_ini(file_path):
   config = configparser.ConfigParser()
   config.read(file_path)
@@ -86,6 +125,9 @@ if __name__ == "__main__":
   ini_config = load_config_ini(args.config)
   song_info = load_config_section("Song", ini_config, default_song_config)
   parser_config = load_config_section("Parser", ini_config, default_parser_config)
+
+  validate_lane_maps(parser_config, default_parser_config)
+
   print_section_info("Extracted song info:", song_info)
   print_section_info("Extracted parser config:", parser_config)
 

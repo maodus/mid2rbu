@@ -9,7 +9,28 @@ class NoteParser():
     self.note_hist = [Note(-1, -1, -1) for _ in range(4)]
     self.track_name = track_name
     self.difficulty_span = 3 # Number of notes from start to end of difficulty
-    self.difficulty_map = [0] * 4
+    self.difficulty_map = [60, 72, 84, 96]
+
+    self._colour_map = {"red": 0, "green": 1, "yellow": 2, "blue": 3}
+    self.lane_map = [0, 1, 2, 3] # r,g,y,b
+
+  def apply_lane_mapping(self, config_str):
+    # Assumption: config_str has already been validated
+    split_map = [c.strip() for c in config_str.split(",")]
+    for assignment in split_map:
+        split_assign = assignment.split("=")
+        l, r = split_assign[0].strip(), split_assign[1].strip()
+
+        map_idx = self._colour_map[l]
+        map_val = self._colour_map[r]
+
+        self.lane_map[map_idx] = map_val
+
+  def get_mapped_lane(self, lane):
+    if lane < 0 or lane > 3:
+      return 0
+    
+    return self.lane_map[lane]
 
   def process_note(self, tempo_map, note, modifiers):
     for i in range(4):
@@ -19,7 +40,7 @@ class NoteParser():
       if note.midi_note < diff_start or note.midi_note > diff_end:
         continue
 
-      lane = (note.midi_note - diff_start) % 4
+      lane = self.get_mapped_lane((note.midi_note - diff_start) % 4)
       last_note = self.note_hist[i] # Get the last recorded note for this difficulty
 
       # If we have multiple notes on the same tick and midi number, we have a multi-gem
@@ -64,13 +85,9 @@ class GuitarParser(NoteParser):
     def __init__(self):
       super().__init__("PART GUITAR")
 
-      self.difficulty_map = [60, 72, 84, 96]
-
 class BassParser(NoteParser):
     def __init__(self):
       super().__init__("PART BASS")
-
-      self.difficulty_map = [60, 72, 84, 96]
 
 class VocalParser(NoteParser):
     def __init__(self, pitched_vocals):
@@ -83,8 +100,6 @@ class VocalParser(NoteParser):
         # Every 4 semitones constitutes each 4-way mapping of lanes/frets.
         self.difficulty_span = 47
         self.difficulty_map = [36, 36, 36, 36]
-      else:
-        self.difficulty_map = [60, 72, 84, 96]
 
     def process_note(self, tempo_map, note, modifiers):
       for i in range(4):
@@ -94,7 +109,7 @@ class VocalParser(NoteParser):
         if note.midi_note < diff_start or note.midi_note > diff_end:
           continue
 
-        lane = (note.midi_note - diff_start) % 4
+        lane = self.get_mapped_lane((note.midi_note - diff_start) % 4)
         last_note = self.note_hist[i] # Get the last recorded note for this difficulty
 
 
