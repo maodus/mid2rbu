@@ -64,6 +64,14 @@ Due to the nature of how these custom charts are injected into the game's memory
 | Key | Description | Example Value |
 |---|---|---|
 | `PitchedVocals` | Whether or not to interpret the vocal track as pitched notes. Set this to `True` if the vocal track was not charted like a regular instrument, but instead considers the vocal pitch of the singer (usual case with Rock Band charts). Otherwise, set this value to `False` (like in the case of a Fortnite Festival chart). **\*WIP\*** | `True` |
+| `*Instrument*LaneMap` | Enables the ability to re-assign gem colours. If you wanted to move red gems to the blue lane (vice-versa), you would do something like this: `red=blue,yellow=yellow,green=green,blue=red`. <br><br> **Note**: This doesnt actually move the gameplay position of each lane/fret, it only changes the gems that would appear on them. | `red=blue,yellow=yellow,green=green,blue=red` |
+
+### PostProcess
+
+| Key | Description | Example Value |
+|---|---|---|
+| `EnablePruning` | When converted, some charts position gems in such ways that are almost impossible to hit. This setting attempts to delete some of these offending gems in order to make the chart more playable. | `True` |
+| `PruneDistance` | The distance in ticks between gems that make them eligible for pruning. | `120` |
 
 ## Acknowledgements
 
