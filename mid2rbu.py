@@ -29,6 +29,11 @@ default_parser_config = {
   "VocalLaneMap" : "red=red, yellow=yellow, green=green, blue=blue"
 }
 
+default_pp_config = {
+   "EnablePruning" : True,
+   "PruneDistance" : 120
+}
+
 def parse_value(value, default):
   '''Converts the value to the type of the default, or returns the default on failure.'''
   try:
@@ -125,15 +130,17 @@ if __name__ == "__main__":
   ini_config = load_config_ini(args.config)
   song_info = load_config_section("Song", ini_config, default_song_config)
   parser_config = load_config_section("Parser", ini_config, default_parser_config)
+  pp_config = load_config_section("PostProcess", ini_config, default_pp_config)
 
   validate_lane_maps(parser_config, default_parser_config)
 
   print_section_info("Extracted song info:", song_info)
   print_section_info("Extracted parser config:", parser_config)
+  print_section_info("Extracted post processing config:", pp_config)
 
   # Load and parse midi file
   mid = mido.MidiFile(args.midi_path)
-  midi_parser = MidiParser(mid, parser_config)
+  midi_parser = MidiParser(mid, parser_config, pp_config)
   midi_parser.parse_tracks()
 
   part_order = ["PART DRUMS", "PART BASS", "PART GUITAR", "PART VOCALS"]
