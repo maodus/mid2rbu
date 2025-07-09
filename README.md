@@ -72,6 +72,7 @@ Due to the nature of how these custom charts are injected into the game's memory
 |---|---|---|
 | `EnablePruning` | When converted, some charts position gems in such ways that are almost impossible to hit. This setting attempts to delete some of these offending gems in order to make the chart more playable. | `True` |
 | `PruneDistance` | The distance in ticks between gems that make them eligible for pruning. | `120` |
+| `SparseMultiGems` | Many multi-gems (especially on drum tracks) often require the use of a single hand to hit two notes at once. This may feel awkward in many game-play scenarios. This option will convert any of these note instances to a more sparse multi-gem, one that will utilize a two-hand control scheme instead of just one. For example, a red/yellow note multi-gem will be converted to a yellow/blue note multi-gem.  | `False` |
 
 ## Acknowledgements
 
@@ -80,3 +81,4 @@ This project would not have been possible without help from the following:
 - The mido library for MIDI parsing.
 - MiloHax Discord server.
 - Contributors of the RB3 decompilation effort.
+- [Dylan/Djx](https://www.youtube.com/@djx1100REBORN) for testing, suggestions, and improvements.

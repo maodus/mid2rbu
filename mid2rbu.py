@@ -31,7 +31,8 @@ default_parser_config = {
 
 default_pp_config = {
    "EnablePruning" : True,
-   "PruneDistance" : 120
+   "PruneDistance" : 120,
+   "SparseMultiGems" : True
 }
 
 def parse_value(value, default):

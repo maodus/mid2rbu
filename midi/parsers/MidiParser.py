@@ -6,6 +6,7 @@ from midi.parsers.TempoParser import TempoParser
 from builders.BarBuilder import BarBuilder
 from midi.Note import Note
 from processing.IntervalGemPruner import IntervalGemPruner
+from processing.SparseMultiGem import SparseMultiGem
 
 class MidiParser:
   def __init__(self, midi_file, parser_config, pp_config):
@@ -141,6 +142,7 @@ class MidiParser:
     final_tick = self.get_final_tick()
 
     igp = IntervalGemPruner()
+    smg = SparseMultiGem()
 
     for i in range(len(self.midi_file.tracks)):
       track = self.midi_file.tracks[i]
@@ -169,6 +171,10 @@ class MidiParser:
           parser.process_note(tempo_map, note.clone(), modifiers | ignore_flag)
       
       for j in range(4):
+        # Separate gems if enabled
+        if self.pp_config["SparseMultiGems"]:
+          smg.separate_gems(parser.gems[j])
+
         # Prune gems if enabled, must be done before building bars
         if self.pp_config["EnablePruning"]:
           igp.prune_gems(parser.gems[j], self.pp_config["PruneDistance"])
