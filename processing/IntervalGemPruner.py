@@ -29,7 +29,7 @@ class IntervalGemPruner():
         if account_lane and r_gem.tick - l_gem.tick <= min_tick_gap * gem_dist:
           l -= 1 # Increase window
           continue
-        elif gem_dist > 1: # Atleast 2 gems (includes in window
+        elif gem_dist > 1: # Atleast 2 gems (includes r_gem) in window
           self._prune_range(gems, l, r)
 
           # Restart from the gem tick that broke the pruning chain
