@@ -177,6 +177,6 @@ class MidiParser:
 
         # Prune gems if enabled, must be done before building bars
         if self.pp_config["EnablePruning"]:
-          igp.prune_gems(parser.gems[j], self.pp_config["PruneDistance"])
+          igp.prune_gems(parser.gems[j], self.pp_config["PruneDelta"])
 
         self.bar_builders[track_name].build(tempo_map, measure_map, parser.gems[j], j, final_tick)

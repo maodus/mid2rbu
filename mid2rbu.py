@@ -7,6 +7,8 @@ from pathlib import Path
 from midi.parsers.MidiParser import MidiParser
 
 VERSION = 1
+
+# Song Info
 default_song_config = {
   "Name" : "CUSTOM SONG",
   "Artist": "UNKNOWN",
@@ -21,6 +23,7 @@ default_song_config = {
   "BandDifficulty" : 5,
 }
 
+# Parsing
 default_parser_config = {
   "PitchedVocals" : True,
   "DrumLaneMap" : "red=red, yellow=yellow, green=green, blue=blue",
@@ -29,9 +32,10 @@ default_parser_config = {
   "VocalLaneMap" : "red=red, yellow=yellow, green=green, blue=blue"
 }
 
+# Post Processing
 default_pp_config = {
    "EnablePruning" : True,
-   "PruneDistance" : 120,
+   "PruneDelta" : 120,
    "SparseMultiGems" : True
 }
 
