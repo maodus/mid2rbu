@@ -51,7 +51,7 @@ Due to the nature of how these custom charts are injected into the game's memory
 | `Artist` | Artist or band name. Maximum length of **47 characters** | `GREEN DAY` |
 | `InitialTrack` | Track that is initially displayed when starting the song. <br><br>• `0` = Drums <br>• `1` = Bass <br>• `2` = Guitar <br>• `3` = Vocals | `0` |
 | `DifficultyOffset` | Difficulty category in which your song will be displayed under. <br><br>• `0` = Warmup <br>• `1` = Apprentice <br>• `2` = Solid <br>• `3` = Moderate <br>• `4` = Challenging <br>• `5` = Nightmare <br>• `6` = Impossible | `0` |
-| `GenreOffset` | Musical genre index. **Range: 0–19.** *(List of genres coming soon.)*  | `0` |
+| `GenreOffset` | Musical genre index.  <br><br>• `0` = Alternative <br>• `1` = Blues <br>• `2` = Classic Rock <br>• `3` = Country <br>• `4` = Emo <br>• `5` = Fusion <br>• `6` = Glam <br>• `7` = Grunge <br>• `8` = Indie Rock <br>• `9` = Jazz <br>• `10` = Metal <br>• `11` = Novelty <br>• `12` = Nu-Metal <br>• `13` = Pop-Rock <br>• `14` = Prog <br>• `15` = Punk <br>• `16` = Rock <br>• `17` = Southern Rock <br>• `18` = Urban <br>• `19` = Other  | `0` |
 | `EraOffset` | Musical era index. <br><br>• `0` = 60's <br>• `1` = 70's <br>• `2` = 80's <br>• `3` = 90's <br>• `4` = 00's | `0` |
 | `BandDifficulty` | Overall difficulty rating considering all tracks. **Range: 0–6.** | `6` |
 | `DrumDifficulty` |  Difficulty rating of the drum track. **Range: 0–6.**   | `1` |
