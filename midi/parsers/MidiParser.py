@@ -141,6 +141,7 @@ class MidiParser:
     measure_map = self.get_measure_map()
     final_tick = self.get_final_tick()
 
+    # Post Processors
     igp = IntervalGemPruner()
     smg = SparseMultiGem()
 
@@ -180,3 +181,9 @@ class MidiParser:
           igp.prune_gems(parser.gems[j], self.pp_config["PruneDelta"])
 
         self.bar_builders[track_name].build(tempo_map, measure_map, parser.gems[j], j, final_tick)
+
+    if self.pp_config["SparseMultiGems"]:
+      print(f"[Post Process] Separated a total of {smg.get_sparse_count()} multi-gems.")
+
+    if self.pp_config["EnablePruning"]:
+      print(f"[Post Process] Pruned a total of {igp.get_prune_count()} gems.")

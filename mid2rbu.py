@@ -116,6 +116,7 @@ def print_section_info(header_str, section):
   print(header_str)
   for key, value in section.items():
       print(f"  {key}: {value}")
+  print()
 
 def clean_file_name(file_name):
    clean_name = "".join(c.upper() for c in file_name if c.isalnum())

@@ -1,6 +1,6 @@
 class IntervalGemPruner():
   def __init__(self):
-      pass
+      self._prune_count = 0
 
   def prune_gems(self, gems, ms_window):
     gem_len = len(gems)
@@ -16,10 +16,13 @@ class IntervalGemPruner():
 
       if r_gem.ms - l_gem.ms <= ms_window:
         gems.pop(l)
+        self._prune_count += 1
 
         r = l
         l = r - 1
       else:
         r -= 1
         l -= 1
-      
+
+  def get_prune_count(self):
+    return self._prune_count      
