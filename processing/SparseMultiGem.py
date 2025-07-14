@@ -1,22 +1,23 @@
+from misc.utils import count_4bit
+from rbu.Gem import Gem
+
 class SparseMultiGem():
   def __init__(self):
     self._sparse_count = 0
-    self.bit_lookup = [0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4]
-    
-  def _count_lanes(self, lane_bits):
-    return self.bit_lookup[lane_bits & 0xF]
 
   def separate_gems(self, gems):
     for i in range(len(gems)):
       lanes = gems[i].lane
 
-      if self._count_lanes(lanes) != 2:
+      if count_4bit(lanes) != 2:
         continue
 
+      left_combo = Gem.RED | Gem.YELLOW
+      right_combo = Gem.GREEN | Gem.BLUE
       # Check to see if both gems are on the same side
-      if not (lanes ^ 0x3) or not (lanes ^ 0xC):
+      if not (lanes ^ left_combo) or not (lanes ^ right_combo):
         self._sparse_count += 1
-        lanes ^= 0x9 # Re-arrange gems so that they are not side-by-side
+        lanes ^= (Gem.RED | Gem.BLUE) # Re-arrange gems so that they are not side-by-side
 
       gems[i].lane = lanes
 
