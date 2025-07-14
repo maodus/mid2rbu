@@ -2,6 +2,11 @@ import struct
 from midi.Event import EventType
 
 class Gem:
+  RED = 1 << 0
+  YELLOW = 1 << 1
+  GREEN = 1 << 2
+  BLUE = 1 << 3
+
   def __init__(self, ms, tick, ms_duration, tick_duration, lane, modifiers):
     self.modifiers = modifiers
 
