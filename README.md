@@ -72,7 +72,8 @@ Due to the nature of how these custom charts are injected into the game's memory
 |---|---|---|
 | `EnablePruning` | When converted, some charts position gems in such ways that are almost impossible to hit. This setting attempts to delete some of these offending gems in order to make the chart more playable. | `True` |
 | `PruneDelta` | The millisecond threshold between two gems before gem pruning is applied. | `120` |
-| `SparseMultiGems` | Many multi-gems (especially on drum tracks) often require the use of a single hand to hit two notes at once. This may feel awkward in many game-play scenarios. This option will convert any of these note instances to a more sparse multi-gem, one that will utilize a two-hand control scheme instead of just one. For example, a red/yellow note multi-gem will be converted to a yellow/blue note multi-gem.  | `False` |
+| `SparseMultiGems` | Many multi-gems (especially on drum tracks) often require the use of a single hand to hit two notes at once. This may feel awkward in many game-play scenarios. This option will convert any of these note instances to a more sparse multi-gem, one that will utilize a two-hand control scheme instead of just one. For example, a red/yellow note multi-gem will be converted to a yellow/blue note multi-gem.  | `True` |
+| `MultiGemReduction` | When converting songs from other Rock Band games, you may find that certain sections may be filled with many fast-paced multi-gems. This setting will try to make these sections a little easier by reducing the multi-gems to just a single gem. For example, a group of 4 red/green multi-gems will be converted to just 4 green gems. Note, this setting will only affect groups of four multi-gems that occur within 180ms of eachother. | `False` |
 
 ## Acknowledgements
 

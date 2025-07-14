@@ -6,6 +6,7 @@ from midi.parsers.TempoParser import TempoParser
 from builders.BarBuilder import BarBuilder
 from midi.Note import Note
 from processing.IntervalGemPruner import IntervalGemPruner
+from processing.MultiGemReducer import MultiGemReducer
 from processing.SparseMultiGem import SparseMultiGem
 
 class MidiParser:
@@ -144,6 +145,7 @@ class MidiParser:
     # Post Processors
     igp = IntervalGemPruner()
     smg = SparseMultiGem()
+    mgr = MultiGemReducer()
 
     for i in range(len(self.midi_file.tracks)):
       track = self.midi_file.tracks[i]
@@ -180,6 +182,9 @@ class MidiParser:
         if self.pp_config["EnablePruning"]:
           igp.prune_gems(parser.gems[j], self.pp_config["PruneDelta"])
 
+        if self.pp_config["MultiGemReduction"]:
+          mgr.reduce_multis(parser.gems[j])
+
         self.bar_builders[track_name].build(tempo_map, measure_map, parser.gems[j], j, final_tick)
 
     if self.pp_config["SparseMultiGems"]:
@@ -187,3 +192,6 @@ class MidiParser:
 
     if self.pp_config["EnablePruning"]:
       print(f"[Post Process] Pruned a total of {igp.get_prune_count()} gems.")
+
+    if self.pp_config["MultiGemReduction"]:
+      print(f"[Post Process] Reduced a total of {mgr.get_reduction_count()} multi-gems.")
