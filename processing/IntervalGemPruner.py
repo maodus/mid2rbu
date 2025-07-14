@@ -14,7 +14,7 @@ class IntervalGemPruner():
       r_gem = gems[r]
       l_gem = gems[l]
 
-      if r_gem.ms - l_gem.ms <= ms_window:
+      if int(r_gem.ms - l_gem.ms) <= ms_window:
         gems.pop(l)
         self._prune_count += 1
 
