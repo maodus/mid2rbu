@@ -1,12 +1,15 @@
 import mido
 import struct
 import configparser
-import argparse
 from pathlib import Path
+import shutil
+
 
 from midi.parsers.MidiParser import MidiParser
+from misc.cli import parse_args
+from misc.utils import clean_file_name
 
-VERSION = 1
+VERSION = 2
 
 # Song Info
 default_song_config = {
@@ -88,8 +91,7 @@ def validate_lane_maps(config, default_config):
       if colours[colour] != 2:
         config[key] = default_config[key]
         break
-    
-  
+
 def load_config_ini(file_path):
   config = configparser.ConfigParser()
   config.read(file_path)
@@ -119,15 +121,19 @@ def print_section_info(header_str, section):
       print(f"  {key}: {value}")
   print()
 
-def clean_file_name(file_name):
-   clean_name = "".join(c.upper() for c in file_name if c.isalnum())
-   return "Z" + clean_name + ".rbu"
+def create_package(song_name, config_path):
+  parent_dir = Path(__file__).parent
+  customs_dir = parent_dir / "custom_charts"
 
-def parse_args():
-  parser = argparse.ArgumentParser(description="Converts a MIDI file into a Rockband Unplugged chart.")
-  parser.add_argument("midi_path", help="Path to the MIDI file.")
-  parser.add_argument("-c", "--config", default="config.ini", help="Path to the config.ini config file (default: config.ini)")
-  return parser.parse_args()
+  if not customs_dir.exists():
+    customs_dir.mkdir()
+
+  package_dir = customs_dir / song_name
+  package_dir.mkdir(exist_ok = True)
+
+  shutil.copy(config_path, package_dir / "config.ini")
+
+  return package_dir
 
 if __name__ == "__main__":
   # Parse CL args
@@ -146,15 +152,26 @@ if __name__ == "__main__":
   print_section_info("Extracted post processing config:", pp_config)
 
   # Load and parse midi file
-  mid = mido.MidiFile(args.midi_path)
+  mid = None
+  try:
+    mid = mido.MidiFile(args.midi_path)
+  except:
+     print("Failed to parse midi file")
+     exit()
+
   midi_parser = MidiParser(mid, parser_config, pp_config)
   midi_parser.parse_tracks()
 
   part_order = ["PART DRUMS", "PART BASS", "PART GUITAR", "PART VOCALS"]
   difficulties = ["easy", "medium", "hard", "expert"]
-  rbu_file_name = clean_file_name(Path(args.midi_path).stem)
-  with open (rbu_file_name, "wb") as f:
 
+  clean_name = clean_file_name(Path(args.midi_path).stem)
+  rbu_file_name = "Z" + clean_name + ".rbu"
+
+  if not args.no_package:
+    rbu_file_name = str(create_package(clean_name, args.config) / rbu_file_name)
+ 
+  with open (rbu_file_name, "wb") as f:
     track_difficulties = (
       (song_info["DrumDifficulty"]   & 0xF) |
       (song_info["GuitarDifficulty"] & 0xF) << 4 |
@@ -193,10 +210,11 @@ if __name__ == "__main__":
       for part in part_order:
         f.write(midi_parser.note_parsers[part].get_bytes(difficulty)) # Length followed by gem data
 
-      gem_size = f.tell() - diff_start
-
       for part in part_order:
         f.write(midi_parser.bar_builders[part].get_bytes(difficulty)) # Length followed by bar data
+
+      for part in part_order:
+        f.write(midi_parser.solo_builders[part].get_bytes(difficulty)) # Length followed by solo data
 
       diff_end = f.tell()
       section_size = diff_end - diff_start - 4
@@ -206,3 +224,5 @@ if __name__ == "__main__":
       f.seek(diff_end, 0)
 
       print(f"Size of {difficulties[difficulty]} section: {diff_end - diff_start} bytes")
+    
+  print(f"Created '{rbu_file_name}'")

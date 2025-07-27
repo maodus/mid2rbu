@@ -1,3 +1,4 @@
+from builders.SoloPhraseBuilder import SoloPhraseBuilder
 from midi.Event import EventType, TrackEvent
 from midi.parsers.BeatParser import BeatParser
 from midi.parsers.NoteParser import *
@@ -28,8 +29,10 @@ class MidiParser:
     }
 
     self.bar_builders = {}
+    self.solo_builders = {}
     for key in self.note_parsers:
       self.bar_builders[key] = BarBuilder()
+      self.solo_builders[key] = SoloPhraseBuilder()
 
   def find_track(self, track_name):
     for track in self.midi_file.tracks:
@@ -117,7 +120,11 @@ class MidiParser:
         if note.midi_note == 116: # Starpower
           events.append(TrackEvent(note.tick_start, sus, EventType.Starpower))
           events.append(TrackEvent(note.tick_end, 0, EventType.StarpowerEnd))
-          
+
+        if note.midi_note == 103 and sus > 480: # Solo
+          events.append(TrackEvent(note.tick_start, 0, EventType.SoloPhraseStart))
+          events.append(TrackEvent(note.tick_end, 0, EventType.SoloPhraseEnd))
+
     return events
   
   def _get_track_config_prefix(self, track_name):
@@ -129,7 +136,6 @@ class MidiParser:
     }
 
     return track_map[track_name]
-
 
   def parse_tracks(self):
     self.validate_tracks() # Make sure we have needed tracks
@@ -185,6 +191,8 @@ class MidiParser:
         if self.pp_config["MultiGemReduction"]:
           mgr.reduce_multis(parser.gems[j])
 
+        # Build solos after pruning/gem adjustments so they aren't as wonky in game
+        self.solo_builders[track_name].build_solos(tempo_map, parser.gems[j], events, j)
         self.bar_builders[track_name].build(tempo_map, measure_map, parser.gems[j], j, final_tick)
 
     if self.pp_config["SparseMultiGems"]:
