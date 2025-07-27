@@ -17,6 +17,6 @@ def parse_args():
     "--no-package", 
     default = False,
     action = "store_true",
-    help = "Path to the config.ini config file (default: config.ini)",
+    help = "Disables packaging a copy of the config with the parsed .rbu file",
   )
   return parser.parse_args()
