@@ -55,6 +55,20 @@ class Gem:
       self.unk4
     )
   
+  def has_mod(self, modifier):
+    return self.modifiers & modifier
+  
+  def make_solo(self):
+    self.unk4 |= 0x08000000
+  
+  def make_solo_start(self, count):
+    self.make_solo()
+    self.unk4 = (self.unk4 & 0xFFFF0000) | (1 << 28) | count
+
+  def make_solo_end(self):
+    self.make_solo()
+    self.unk4 = (self.unk4 & 0xFFFF0000) | (2 << 28)
+  
   def __str__(self):
     return f"{self.ms} {self.tick} {self.tick_duration} {bin(self.lane)} {bin(self.modifiers)}"
   

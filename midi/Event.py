@@ -5,7 +5,9 @@ class EventType(IntFlag):
   Starpower = 1 << 0
   StarpowerEnd = 1 << 1
   IgnoreDuration = 1 << 2
-
+  SoloPhraseStart = 1 << 3
+  SoloPhraseEnd = 1 << 4
+  
 class TrackEvent():
   def __init__(self, tick, sus, event_types):
     self.tick = tick
